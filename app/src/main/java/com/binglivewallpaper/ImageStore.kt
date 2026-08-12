@@ -32,6 +32,46 @@ object ImageStore {
         return BitmapFactory.decodeFile(file.absolutePath)
     }
 
+    /**
+     * Loads the cached image, downsampling to approximately [reqWidth]×[reqHeight]
+     * to avoid allocating a full-resolution bitmap on low-memory devices.
+     */
+    fun load(context: Context, reqWidth: Int, reqHeight: Int): Bitmap? {
+        val file = imageFile(context)
+        if (!file.exists()) return null
+
+        // First pass: read bounds only.
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+        // Second pass: decode with subsampling.
+        val opts = BitmapFactory.Options().apply {
+            inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight)
+        }
+        return BitmapFactory.decodeFile(file.absolutePath, opts)
+    }
+
+    private fun calculateInSampleSize(
+        options: BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int,
+    ): Int {
+        val (width, height) = options.outWidth to options.outHeight
+        var inSampleSize = 1
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+            // Largest power-of-2 that keeps both dimensions >= requested size.
+            while (halfHeight / inSampleSize >= reqHeight &&
+                halfWidth / inSampleSize >= reqWidth
+            ) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize.coerceAtLeast(1)
+    }
+
     fun savedDate(context: Context): String? =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(KEY_DATE, null)

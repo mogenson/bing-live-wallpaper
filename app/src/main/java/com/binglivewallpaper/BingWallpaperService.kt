@@ -32,7 +32,8 @@ class BingWallpaperService : WallpaperService() {
         override fun onSurfaceCreated(holder: SurfaceHolder) {
             super.onSurfaceCreated(holder)
             Log.d(TAG, "onSurfaceCreated")
-            bitmap = ImageStore.load(this@BingWallpaperService)
+            val dm = resources.displayMetrics
+            bitmap = ImageStore.load(this@BingWallpaperService, dm.widthPixels, dm.heightPixels)
             Log.d(TAG, "Loaded cached bitmap: ${bitmap?.let { "${it.width}x${it.height}" } ?: "none"}")
             if (bitmap == null) {
                 Log.d(TAG, "No cached image — kicking off immediate fetch")
@@ -58,7 +59,8 @@ class BingWallpaperService : WallpaperService() {
             if (visible) {
                 // Refresh from disk in case a new image was downloaded
                 // while we were hidden.
-                bitmap = ImageStore.load(this@BingWallpaperService)
+                val dm = resources.displayMetrics
+                bitmap = ImageStore.load(this@BingWallpaperService, dm.widthPixels, dm.heightPixels)
                 draw()
             }
         }
