@@ -1,6 +1,52 @@
-.gradle
+# Built application files / outputs
+*.apk
+*.aab
+*.aar
+*.dex
+*.class
+
+# Executables and build outputs
+/bin/
+/gen/
+/out/
 build/
-app/build/
-gradlew.bat
-gradlew
-gradle/
+*/build/
+*/*/build/
+
+# Generated Gradle files and caches
+.gradle/
+**/build/generated/
+**/build/intermediates/
+**/build/outputs/
+**/build/tmp/
+
+# Gradle wrapper generated files (optional: keep if you don't track wrapper)
+# gradle-wrapper.jar
+
+# Local configuration files
+local.properties
+
+# Android Studio & IntelliJ IDEA files
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin / KSP / KAPT generated files
+.kotlin/
+kotlin-daemon.log
+*.ksp
+
+# Lint and Profiling reports
+lint/reports/
+lint/generated/
+*.hprof
+
+# OS / System generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
