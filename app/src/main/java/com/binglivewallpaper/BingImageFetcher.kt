@@ -8,13 +8,17 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object BingImageFetcher {
 
     private const val TAG = "BingImageFetcher"
 
     private const val JSON_URL =
-        "https://www.bing.com/HPImageArchive.aspx?format=js&uhd=1&idx=0&n=1"
+        "https://www.bing.com/HPImageArchive.aspx?format=js&uhd=1&idx=0&n=1&mkt=en-US"
     private const val BASE_URL = "https://bing.com"
     private const val IMAGE_SUFFIX = "_UHD.jpg"
     private const val CONNECT_TIMEOUT_MS = 15_000
@@ -28,7 +32,8 @@ object BingImageFetcher {
 
     /**
      * Fetches the Bing image-of-the-day metadata, downloads the UHD image,
-     * and returns the decoded [Bitmap]. Throws on any failure.
+     * and returns the decoded [Bitmap]. Throws on any failure or if the
+     * fetched image startdate is earlier than today's UTC date.
      */
     fun fetch(): Result {
         Log.d(TAG, "Fetching JSON from $JSON_URL")
@@ -40,7 +45,13 @@ object BingImageFetcher {
         val urlbase = image.getString("urlbase")
         val date = image.optString("startdate", "")
         val imageUrl = BASE_URL + urlbase + IMAGE_SUFFIX
-        Log.d(TAG, "Image URL: $imageUrl")
+        Log.d(TAG, "Image URL: $imageUrl, startdate: $date")
+
+        val todayUtc = getTodayUtcDateString()
+        if (date.isNotEmpty() && date < todayUtc) {
+            Log.w(TAG, "Bing returned startdate $date which is earlier than today's UTC date $todayUtc")
+            throw IllegalStateException("Bing image of the day for $todayUtc is not available yet (got startdate=$date).")
+        }
 
         val bitmap = downloadBitmap(imageUrl)
             ?: throw IllegalStateException("Failed to decode image from $imageUrl")
@@ -59,11 +70,22 @@ object BingImageFetcher {
         return result
     }
 
+    internal fun getTodayUtcDateString(): String {
+        val sdf = SimpleDateFormat("yyyyMMdd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return sdf.format(Date())
+    }
+
     private fun httpGet(url: String): String {
         val conn = (URL(url).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
             requestMethod = "GET"
+            useCaches = false
+            defaultUseCaches = false
+            setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+            setRequestProperty("Pragma", "no-cache")
         }
         try {
             val code = conn.responseCode
@@ -82,6 +104,10 @@ object BingImageFetcher {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
             requestMethod = "GET"
+            useCaches = false
+            defaultUseCaches = false
+            setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+            setRequestProperty("Pragma", "no-cache")
         }
         try {
             val code = conn.responseCode
@@ -95,3 +121,4 @@ object BingImageFetcher {
         }
     }
 }
+
