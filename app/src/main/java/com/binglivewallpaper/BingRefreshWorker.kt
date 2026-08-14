@@ -2,6 +2,7 @@ package com.binglivewallpaper
 
 import android.content.Context
 import android.util.Log
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -37,15 +38,15 @@ class BingRefreshWorker(
             Result.success()
         } catch (t: Throwable) {
             Log.e(TAG, "doWork failed: ${t.message}", t)
-            if (runAttemptCount < MAX_RETRIES) Result.retry() else Result.failure()
+            Result.retry()
         }
     }
 
     companion object {
         private const val TAG = "BingRefreshWorker"
         private const val WORK_NAME = "bing_daily_refresh"
-        private const val MAX_RETRIES = 3
         private const val TARGET_HOUR_UTC = 9
+        private const val INITIAL_BACKOFF_MINUTES = 30L
 
         fun schedule(context: Context) {
             val constraints = Constraints.Builder()
@@ -59,6 +60,11 @@ class BingRefreshWorker(
             val request = PeriodicWorkRequestBuilder<BingRefreshWorker>(1, TimeUnit.DAYS)
                 .setConstraints(constraints)
                 .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    INITIAL_BACKOFF_MINUTES,
+                    TimeUnit.MINUTES,
+                )
                 .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
@@ -81,6 +87,11 @@ class BingRefreshWorker(
 
             val request = OneTimeWorkRequestBuilder<BingRefreshWorker>()
                 .setConstraints(constraints)
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    INITIAL_BACKOFF_MINUTES,
+                    TimeUnit.MINUTES,
+                )
                 .build()
 
             Log.d(TAG, "Enqueuing one-time fetch now")
