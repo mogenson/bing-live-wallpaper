@@ -45,6 +45,11 @@ Build:
 ./gradlew assembleDebug
 ```
 
+Or build with nix developer shell:
+```sh
+nix develop --command ./gradlew assembleDebug
+```
+
 Install:
 ```sh
 adb install app/build/outputs/apk/debug/app-debug.apk
