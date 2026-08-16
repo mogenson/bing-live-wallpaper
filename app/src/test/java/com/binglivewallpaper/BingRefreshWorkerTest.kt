@@ -8,7 +8,7 @@ class BingRefreshWorkerTest {
 
     @Test
     fun testInitialDelayToNextUtc() {
-        val delay = BingRefreshWorker.initialDelayToNextUtc(9)
+        val delay = BingRefreshWorker.initialDelayToNextUtc(11)
         assertTrue("Initial delay must be positive", delay > 0)
         assertTrue("Initial delay must be <= 24 hours", delay <= 86_400_000L)
     }

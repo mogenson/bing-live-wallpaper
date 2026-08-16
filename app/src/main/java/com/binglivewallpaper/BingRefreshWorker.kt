@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
  * disk for the wallpaper service to render.
  *
  * Constraints: unmetered network + battery not low.
- * Schedule: every day at 09:00 UTC.
+ * Schedule: every day at 11:00 UTC.
  */
 class BingRefreshWorker(
     appContext: Context,
@@ -45,7 +45,7 @@ class BingRefreshWorker(
     companion object {
         private const val TAG = "BingRefreshWorker"
         private const val WORK_NAME = "bing_daily_refresh"
-        private const val TARGET_HOUR_UTC = 9
+        private const val TARGET_HOUR_UTC = 11
         private const val INITIAL_BACKOFF_MINUTES = 30L
 
         fun schedule(context: Context) {
@@ -69,7 +69,7 @@ class BingRefreshWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                 request,
             )
         }
