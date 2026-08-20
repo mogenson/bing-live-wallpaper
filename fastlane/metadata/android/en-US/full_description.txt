@@ -1,0 +1,8 @@
+Bing Live Wallpaper fetches the Bing image of the day at 11 UTC every day and sets it as your wallpaper.
+
+Features:
+* Scales the image to the largest screen dimension and centers it automatically.
+* Redraws the image on screen layout change (e.g., screen rotation or unfolding foldables).
+* Designed for folding phones: supports setting independent live wallpapers on inner and outer screens.
+* Extremely lightweight with no background usage beyond the daily image fetch.
+* No ads, no tracking, open source.

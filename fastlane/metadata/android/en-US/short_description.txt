@@ -1,0 +1,1 @@
+Fetches and displays the Bing image of the day as your live wallpaper.
