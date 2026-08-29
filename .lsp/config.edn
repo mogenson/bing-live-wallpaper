@@ -1,0 +1,2 @@
+{:source-paths ["app/src/main/clojure" "app/src/test/clojure"]
+ :linters {:clojure-lsp/unused-public-var {:level :off}}}

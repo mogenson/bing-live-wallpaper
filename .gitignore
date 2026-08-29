@@ -50,3 +50,8 @@ lint/generated/
 .DS_Store
 Thumbs.db
 ehthumbs.db
+
+# Clojure & LSP caches
+.cpcache/
+.lsp/.cache/
+.calva/

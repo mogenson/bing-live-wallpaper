@@ -6,8 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachSystem [ "aarch64-darwin" ] (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachSystem [ "aarch64-darwin" ] (
+      system:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -23,7 +29,7 @@
         androidComposition = pkgs.androidenv.composeAndroidPackages {
           cmdLineToolsVersion = "13.0";
           platformToolsVersion = "37.0.1";
-          buildToolsVersions = [ "34.0.0" "35.0.0" ];
+          buildToolsVersions = [ buildToolsVersion ];
           platformVersions = [ "35" ];
           includeEmulator = false; # Set to true if running native emulator
           includeNDK = false;
@@ -38,6 +44,10 @@
             androidSdk
             jdk
             pkgs.gradle
+            pkgs.clojure
+            pkgs.clojure-lsp
+            pkgs.clj-kondo
+            pkgs.zprint
           ];
 
           # Export essential Android environment variables
@@ -53,6 +63,10 @@
             export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/${buildToolsVersion}/aapt2"
 
             echo "Android dev environment loaded (aarch64-darwin)."
+            echo "Run Tests: nix develop --command ./gradlew test"
+            echo "Build Debug APK: nix develop --command ./gradlew assembleDebug"
+            echo "Build Release APK: nix develop --command ./gradlew assembleRelease"
+            echo "Lint Clojure: nix develop --command clj-kondo --lint app/src/main/clojure app/src/test/clojure"
           '';
         };
       }
