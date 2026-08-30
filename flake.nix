@@ -63,10 +63,12 @@
             export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/${buildToolsVersion}/aapt2"
 
             echo "Android dev environment loaded (aarch64-darwin)."
-            echo "Run Tests: nix develop --command ./gradlew test"
-            echo "Build Debug APK: nix develop --command ./gradlew assembleDebug"
-            echo "Build Release APK: nix develop --command ./gradlew assembleRelease"
-            echo "Lint Clojure: nix develop --command clj-kondo --lint app/src/main/clojure app/src/test/clojure"
+            echo " - Run Tests: nix develop --command ./gradlew test"
+            echo " - Build Debug APK: nix develop --command ./gradlew assembleDebug"
+            echo " - Build Release APK: nix develop --command ./gradlew assembleRelease"
+            echo " - Lint Clojure: nix develop --command clj-kondo --lint app/src/main/clojure app/src/test/clojure"
+            echo " - Install App: adb install -r -g app/build/outputs/apk/debug/app-debug.apk"
+            echo " - Open Wallpaper Chooser: adb shell am start -a android.service.wallpaper.LIVE_WALLPAPER_CHOOSER"
           '';
         };
       }
