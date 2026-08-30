@@ -34,10 +34,7 @@
   (Log/d tag (str "doWork start (attempt " (.getRunAttemptCount this) ")"))
   (try
     (let [result (fetcher/fetch)]
-      (store/save (.getApplicationContext this)
-                  (:bitmap result)
-                  (:url result)
-                  (:date result))
+      (store/save (.getApplicationContext this) (:bitmap result))
       (Log/d tag (str "doWork success: " (:url result)))
       (ListenableWorker$Result/success))
     (catch Throwable t

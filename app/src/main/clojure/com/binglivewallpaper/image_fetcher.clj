@@ -1,8 +1,8 @@
 (ns com.binglivewallpaper.image-fetcher
   (:require [clojure.string :as str])
-  (:import [android.graphics Bitmap Bitmap$CompressFormat BitmapFactory]
+  (:import [android.graphics Bitmap BitmapFactory]
            [android.util Log]
-           [java.io BufferedReader File FileOutputStream InputStream InputStreamReader]
+           [java.io BufferedReader InputStream InputStreamReader]
            [java.net HttpURLConnection URL]
            [java.text SimpleDateFormat]
            [java.util Date Locale TimeZone]
@@ -71,16 +71,15 @@
 (defn fetch
   "Fetches the Bing image-of-the-day metadata, downloads the UHD image,
    and returns a map with {:bitmap bitmap :url url :date date}."
-  []
+  ^Bitmap []
   (Log/d tag (str "Fetching JSON from " json-url))
   (let [json-text (http-get json-url)]
     (Log/d tag (str "Got JSON (" (count json-text) " bytes)"))
-    (let [json-obj (JSONObject. json-text)
-          images-arr (.getJSONArray json-obj "images")
-          first-img (.getJSONObject images-arr 0)
-          urlbase (.getString first-img "urlbase")
-          date-val (.optString first-img "startdate" "")
-          image-url (str base-url urlbase image-suffix)]
+    (let [first-img (-> (JSONObject. json-text)
+                        (.getJSONArray "images")
+                        (.getJSONObject 0))
+          image-url (str base-url (.getString first-img "urlbase") image-suffix)
+          date-val (.optString first-img "startdate" "")]
       (Log/d tag (str "Image URL: " image-url ", startdate: " date-val))
       (let [today-utc (get-today-utc-date-string)]
         (when (and (not (str/blank? date-val))
@@ -92,14 +91,4 @@
             (throw (IllegalStateException. (str "Failed to decode image from " image-url)))
             (do
               (Log/d tag (str "Decoded bitmap: " (.getWidth bitmap) "x" (.getHeight bitmap)))
-              {:bitmap bitmap
-               :url image-url
-               :date date-val})))))))
-
-(defn fetch-to-file
-  "Fetches the image and saves it as a JPEG at dest."
-  [^File dest]
-  (let [result (fetch)]
-    (with-open [out (FileOutputStream. dest)]
-      (.compress ^Bitmap (:bitmap result) Bitmap$CompressFormat/JPEG 95 out))
-    result))
+              bitmap)))))))

@@ -13,15 +13,13 @@ The app's architecture follows a functional design: **Pure functional logic at t
 ```mermaid
 graph TD
     subgraph Android System Lifecycle
-        OS[Android OS] -->|BOOT_COMPLETED| BR[BootReceiver]
-        OS -->|Wallpaper Picker| WS[BingWallpaperService]
-        WM[WorkManager] -->|11:00 UTC Daily / Immediate| BW[BingRefreshWorker]
+        OS[Android OS] -->|Wallpaper Picker| WS[BingWallpaperService]
+        WM[WorkManager] -->|11:00 UTC Daily / Immediate / Reboot| BW[BingRefreshWorker]
     end
 
     subgraph Clojure gen-class Adapters
-        BR -->|schedule-work| RW[com.binglivewallpaper.refresh-worker]
         WS -->|onCreateEngine| WE[com.binglivewallpaper.wallpaper-engine]
-        BW -->|doWork| RW
+        BW -->|doWork| RW[com.binglivewallpaper.refresh-worker]
     end
 
     subgraph Pure Functional Clojure Modules

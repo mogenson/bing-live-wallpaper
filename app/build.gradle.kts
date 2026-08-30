@@ -84,8 +84,7 @@ android.applicationVariants.all {
                         'com.binglivewallpaper.image-store
                         'com.binglivewallpaper.refresh-worker
                         'com.binglivewallpaper.wallpaper-engine
-                        'com.binglivewallpaper.wallpaper-service
-                        'com.binglivewallpaper.boot-receiver]]
+                        'com.binglivewallpaper.wallpaper-service]]
               (println "AOT compiling" ns "...")
               (compile ns))
             """.trimIndent()

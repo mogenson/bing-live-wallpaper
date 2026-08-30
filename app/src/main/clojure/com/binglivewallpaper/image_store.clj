@@ -3,9 +3,6 @@
            [android.graphics Bitmap Bitmap$CompressFormat BitmapFactory BitmapFactory$Options]
            [java.io File FileOutputStream]))
 
-(def ^:private prefs-name "bing_image_store")
-(def ^:private key-url "url")
-(def ^:private key-date "date")
 (def ^:private image-filename "bing_image.jpg")
 
 (defn- image-file
@@ -13,17 +10,11 @@
   (File. (.getFilesDir context) image-filename))
 
 (defn save
-  "Persists the bitmap to internal storage and saves URL/date metadata in SharedPreferences."
-  [^Context context ^Bitmap bitmap ^String url ^String date-val]
+  "Persists the bitmap to internal storage."
+  [^Context context ^Bitmap bitmap]
   (let [file (image-file context)]
     (with-open [out (FileOutputStream. file)]
-      (.compress bitmap Bitmap$CompressFormat/JPEG 95 out)))
-  (let [prefs (.getSharedPreferences context prefs-name Context/MODE_PRIVATE)]
-    (.. prefs
-        edit
-        (putString key-url url)
-        (putString key-date date-val)
-        apply)))
+      (.compress bitmap Bitmap$CompressFormat/JPEG 95 out))))
 
 (defn- calculate-in-sample-size
   [^BitmapFactory$Options options ^long req-width ^long req-height]
@@ -58,15 +49,3 @@
                  decode-opts (BitmapFactory$Options.)]
              (set! (.-inSampleSize decode-opts) (int sample-size))
              (BitmapFactory/decodeFile path decode-opts))))))))
-
-(defn saved-date
-  "Returns the cached date string or nil."
-  [^Context context]
-  (let [prefs (.getSharedPreferences context prefs-name Context/MODE_PRIVATE)]
-    (.getString prefs key-date nil)))
-
-(defn saved-url
-  "Returns the cached image URL or nil."
-  [^Context context]
-  (let [prefs (.getSharedPreferences context prefs-name Context/MODE_PRIVATE)]
-    (.getString prefs key-url nil)))
