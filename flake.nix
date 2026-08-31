@@ -44,10 +44,6 @@
             androidSdk
             jdk
             pkgs.gradle
-            pkgs.clojure
-            pkgs.clojure-lsp
-            pkgs.clj-kondo
-            pkgs.zprint
           ];
 
           # Export essential Android environment variables
