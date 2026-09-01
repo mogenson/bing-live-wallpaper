@@ -71,7 +71,7 @@
 (defn fetch
   "Fetches the Bing image-of-the-day metadata, downloads the UHD image,
    and returns a map with {:bitmap bitmap :url url :date date}."
-  ^Bitmap []
+  []
   (Log/d tag (str "Fetching JSON from " json-url))
   (let [json-text (http-get json-url)]
     (Log/d tag (str "Got JSON (" (count json-text) " bytes)"))
@@ -91,4 +91,4 @@
             (throw (IllegalStateException. (str "Failed to decode image from " image-url)))
             (do
               (Log/d tag (str "Decoded bitmap: " (.getWidth bitmap) "x" (.getHeight bitmap)))
-              bitmap)))))))
+              {:bitmap bitmap :url image-url :date date-val})))))))
