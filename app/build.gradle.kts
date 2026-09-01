@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.goodanser.clj-android.android-clojure")
 }
 
 android {
@@ -32,13 +33,21 @@ android {
     }
 
     sourceSets {
-        getByName("main") {
-            resources.srcDirs("src/main/clojure")
-        }
         getByName("test") {
             resources.srcDirs("src/test/clojure")
         }
     }
+
+    packaging {
+        resources {
+            // runtime-repl's Android-compatible stubs shadow nREPL's originals
+            pickFirsts += listOf("nrepl/socket.clj", "nrepl/socket/dynamic.clj")
+        }
+    }
+}
+
+clojureOptions {
+    warnOnReflection.set(true)
 }
 
 dependencies {
@@ -47,51 +56,6 @@ dependencies {
     implementation("androidx.work:work-runtime:2.9.1")
     implementation("org.json:json:20240303")
     testImplementation("junit:junit:4.13.2")
-}
-
-android.applicationVariants.all {
-    val variant = this
-    val variantCapName = variant.name.replaceFirstChar { it.uppercase() }
-    val clojureOutputDir = layout.buildDirectory.dir("intermediates/clojure/${variant.name}/classes").get().asFile
-
-    val compileClojureTask = tasks.register<JavaExec>("compile${variantCapName}Clojure") {
-        dependsOn(variant.javaCompileProvider)
-        group = "build"
-        description = "Compiles Clojure sources for ${variant.name}."
-
-        mainClass.set("clojure.main")
-
-        val cljSourceDir = file("src/main/clojure")
-        val compileClasspath = files(
-            cljSourceDir,
-            clojureOutputDir,
-            android.bootClasspath,
-            variant.javaCompileProvider.map { it.classpath }
-        )
-
-        classpath = compileClasspath
-        systemProperty("clojure.compile.path", clojureOutputDir.absolutePath)
-        systemProperty("clojure.compiler.direct-linking", "true")
-
-        doFirst {
-            clojureOutputDir.mkdirs()
-        }
-
-        args(
-            "-e",
-            """
-            (doseq [ns ['com.binglivewallpaper.image-fetcher
-                        'com.binglivewallpaper.image-store
-                        'com.binglivewallpaper.refresh-worker
-                        'com.binglivewallpaper.wallpaper-engine
-                        'com.binglivewallpaper.wallpaper-service]]
-              (println "AOT compiling" ns "...")
-              (compile ns))
-            """.trimIndent()
-        )
-    }
-
-    variant.registerPostJavacGeneratedBytecode(files(clojureOutputDir).builtBy(compileClojureTask))
 }
 
 val testClojure = tasks.register<JavaExec>("testClojure") {
