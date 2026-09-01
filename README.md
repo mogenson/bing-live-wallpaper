@@ -55,6 +55,21 @@ Install:
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### Release build
+
+Build, sign (with the debug key — for personal installs only, not
+distribution), and install in one step:
+
+```sh
+./install-release.sh
+```
+
+Or build and sign without installing: `./install-release.sh --no-install`.
+
+For a distributable release, `./gradlew assembleRelease` produces an
+**unsigned** APK (`app-release-unsigned.apk`) — this is what F-Droid's build
+server signs with its own key.
+
 Run (open the live wallpaper chooser and select Bing Live Wallpaper):
 ```sh
 adb shell am start -a android.service.wallpaper.LIVE_WALLPAPER_CHOOSER
