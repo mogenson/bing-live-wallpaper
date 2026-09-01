@@ -69,6 +69,8 @@
             echo " - Lint Clojure: nix develop --command clj-kondo --lint app/src/main/clojure app/src/test/clojure"
             echo " - Install App: adb install -r -g app/build/outputs/apk/debug/app-debug.apk"
             echo " - Open Wallpaper Chooser: adb shell am start -a android.service.wallpaper.LIVE_WALLPAPER_CHOOSER"
+            echo " - Forward nREPL port: adb forward tcp:7888 tcp:7888"
+            echo " - Wallpaper/fetch logs: adb logcat -s ClojureApp BingWallpaperService BingRefreshWorker"
           '';
         };
       }

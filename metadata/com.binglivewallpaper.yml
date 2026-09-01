@@ -31,6 +31,14 @@ Builds:
     subdir: app
     gradle:
       - yes
+    # The build consumes the clj-android toolchain (android-clojure-plugin,
+    # neko, runtime-core, runtime-repl, clojure-patched) as Gradle composite
+    # builds: settings.gradle.kts auto-clones them from
+    # https://github.com/clj-android into build/deps/ at configuration time.
+    # All sources are fetched and built deterministically; release builds
+    # exclude the nREPL server, the dynamic classloader, and .clj sources.
+    scandelete:
+      - build/deps
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags

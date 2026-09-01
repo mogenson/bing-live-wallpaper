@@ -30,14 +30,19 @@ fetch or wallpaper update logic, feel free to fork this project and build on it.
 
 ## Build
 
-Activate Nix shell:
-```sh
-nix-shell
-```
+This project is built with the [clj-android](https://github.com/clj-android)
+toolchain: a Gradle plugin AOT-compiles the Clojure sources and wires them into
+the Android build. On the first build, `settings.gradle.kts` automatically
+clones the toolchain's dependencies
+(`android-clojure-plugin`, `neko`, `runtime-core`, `runtime-repl`, and
+`clojure-patched`) into `build/deps/` and includes them as Gradle composite
+builds — no manual setup is required. In debug builds the plugin substitutes
+stock Clojure with `clojure-patched` (Clojure 1.12.0 with an Android-aware
+classloader) so the on-device nREPL works.
 
-Do this once:
+Activate the Nix dev shell:
 ```sh
-gradle wrapper --gradle-version 8.10
+nix develop
 ```
 
 Build:
@@ -45,20 +50,37 @@ Build:
 ./gradlew assembleDebug
 ```
 
-Or build with nix developer shell:
-```sh
-nix develop --command ./gradlew assembleDebug
-```
-
 Install:
 ```sh
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Run:
+Run (open the live wallpaper chooser and select Bing Live Wallpaper):
 ```sh
 adb shell am start -a android.service.wallpaper.LIVE_WALLPAPER_CHOOSER
 ```
+
+## REPL-driven development
+
+Debug builds start an nREPL server on the device (port 7888) via the
+`ClojureApp` application class. Forward the port and connect from any nREPL
+client (CIDER, Calva, `lein repl :connect`, ...):
+
+```sh
+adb forward tcp:7888 tcp:7888
+```
+
+Then connect to `localhost:7888` and evaluate against the running wallpaper:
+
+```clojure
+(require '[com.binglivewallpaper.refresh-worker :as w])
+(import 'com.goodanser.clj_android.runtime.ClojureApp)
+
+;; Trigger an immediate fetch of today's image
+(w/run-once-now (ClojureApp/getInstance))
+```
+
+Watch device logs with `adb logcat -s ClojureApp BingWallpaperService BingRefreshWorker`.
 
 ## F-Droid
 
