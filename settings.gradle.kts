@@ -117,6 +117,7 @@ ensureDep("android-clojure-plugin")?.let {
 }
 
 // Library dependencies — built from source when available.
-listOf("neko", "runtime-core", "runtime-repl", "clojure-patched").forEach { name ->
+// (neko is omitted: this app has no UI and does not use the neko DSL.)
+listOf("runtime-core", "runtime-repl", "clojure-patched").forEach { name ->
     ensureDep(name)?.let { includeBuild(it) }
 }

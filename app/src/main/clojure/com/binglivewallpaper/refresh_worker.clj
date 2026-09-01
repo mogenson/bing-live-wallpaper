@@ -15,10 +15,7 @@
                   [android.content.Context androidx.work.WorkerParameters]}
    :init init
    :state state
-   :prefix "worker-"
-   :methods [^:static [schedule [android.content.Context] void]
-             ^:static [runOnceNow [android.content.Context] void]
-             ^:static [initialDelayToNextUtc [int] long]]))
+   :prefix "worker-"))
 
 (def ^:private tag "BingRefreshWorker")
 (def ^:private work-name "bing_daily_refresh")
@@ -53,10 +50,6 @@
       (.add next Calendar/DAY_OF_YEAR 1))
     (- (.getTimeInMillis next) (.getTimeInMillis now))))
 
-(defn worker-initialDelayToNextUtc
-  ^long [hour-utc]
-  (initial-delay-to-next-utc hour-utc))
-
 (defn- build-constraints
   ^androidx.work.Constraints []
   (.. (Constraints$Builder.)
@@ -80,10 +73,6 @@
                                   ExistingPeriodicWorkPolicy/CANCEL_AND_REENQUEUE
                                   request))))
 
-(defn worker-schedule
-  [^Context context]
-  (schedule-work context))
-
 (defn run-once-now
   [^Context context]
   (let [constraints (build-constraints)
@@ -94,7 +83,3 @@
                     build)]
     (Log/d tag "Enqueuing one-time fetch now")
     (.enqueue (WorkManager/getInstance context) request)))
-
-(defn worker-runOnceNow
-  [^Context context]
-  (run-once-now context))
